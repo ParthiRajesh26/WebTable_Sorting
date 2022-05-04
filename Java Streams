@@ -1,0 +1,59 @@
+package selenium;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+
+public class Web_table_sorting {
+
+	public static void main(String[] args) {
+
+		WebDriver driver = new ChromeDriver();
+
+		driver.get("https://rahulshettyacademy.com/seleniumPractise/#/offers");
+
+		driver.findElement(By.xpath("//tr/th[1]")).click();
+
+		List<WebElement> allElements = driver.findElements(By.xpath("//tr/td[1]"));
+
+		List<String> originalList = allElements.stream().map(s -> s.getText()).collect(Collectors.toList());
+
+		List<String> sortedList = originalList.stream().sorted().collect(Collectors.toList());
+
+		Assert.assertTrue(originalList.equals(sortedList));
+
+		// Get the price of rice in the table
+
+		List<String> productPrice;
+
+		do {
+
+			List<WebElement> rows = driver.findElements(By.xpath("//tr/td[1]"));
+
+			productPrice = rows.stream().filter(s -> s.getText().contains("Rice")).map(s -> getVeggiePrice(s))
+					.collect(Collectors.toList());
+
+			productPrice.forEach(s -> System.out.println("Rice's price " + s));
+
+			if (productPrice.size() < 1) {
+
+				driver.findElement(By.cssSelector("a[aria-label*='Next']")).click();
+
+			}
+
+		} while (productPrice.size() < 1);
+
+	}
+
+	private static String getVeggiePrice(WebElement s) {
+
+		String price = s.findElement(By.xpath("following-sibling::td[1]")).getText();
+
+		return price;
+	}
+
+}
